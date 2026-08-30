@@ -1,12 +1,37 @@
 import math
 import random
 import time
+import sys
+import json
+import os
 
 import pygame
 
 import player as plr
 import enemy as en
 import coin
+
+# High score file management
+HIGHSCORE_FILE = "highscore.json"
+
+def load_highscore():
+    """Load high score from file"""
+    if os.path.exists(HIGHSCORE_FILE):
+        try:
+            with open(HIGHSCORE_FILE, "r") as f:
+                data = json.load(f)
+                return data.get("highscore", 0)
+        except:
+            return 0
+    return 0
+
+def save_highscore(score):
+    """Save high score to file"""
+    try:
+        with open(HIGHSCORE_FILE, "w") as f:
+            json.dump({"highscore": score}, f)
+    except:
+        pass
 
 #git add .
 #git commit -m ""
@@ -26,8 +51,10 @@ if True:
     life = True
 
     score = 0
+    high_score = load_highscore()
     font = pygame.font.Font(None, 100)
     score_text = font.render(f"Score: 0", True, (255, 255, 255))
+    high_score_text = font.render(f"High Score: {high_score}", True, (255, 215, 0))
 
     gameOverFont = pygame.font.Font(None, 500)
 
@@ -136,6 +163,8 @@ def draw():
         enemy.draw()
 
     screen.blit(score_text, (20, 20))
+    screen.blit(high_score_text, (20, 120))
+    font = pygame.font.Font(None, 100)
 
     for i, (effect, _) in enumerate(effects):
         target, name, strength = effect.split(" ")
@@ -154,7 +183,7 @@ def draw():
     #coordinates(player)
 
 def update(dt):
-    global life, enemies, spawn_timer, spawn_time
+    global life, enemies, spawn_timer, spawn_time, score, score_text, high_score, high_score_text
 
     check_effect()
 
@@ -177,7 +206,6 @@ def update(dt):
         if player.bound_rect().colliderect(enemy.bound_rect()) and immortal == False:
             life = False
 
-    global score, score_text
     collected_coins = []
     for c in coins:
         if player.bound_rect().colliderect(c.bound_rect()):
@@ -185,6 +213,10 @@ def update(dt):
             if c.type == "Yellow":
                 score += 1
                 score_text = font.render(f"Score: {score}", True, "white")
+                # Check if new high score
+                if score > high_score:
+                    high_score = score
+                    high_score_text = font.render(f"High Score: {high_score}", True, (255, 215, 0))
             """
             elif c.type == "Green":
                 effect = random.choice(GreenEffectList)
@@ -211,9 +243,11 @@ def game_loop():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
+                    sys.exit()
         pygame.display.flip()
         dt = clock.tick(FPS) / 1000
         spawn_timer += dt
@@ -223,6 +257,9 @@ def game_loop():
 
 while True:
     game_loop()
+    
+    # Save high score when game ends
+    save_highscore(high_score)
 
     text = gameOverFont.render("GAME OVER!", True, "white")
     text_rect = text.get_rect(center=screen.get_rect().center)
@@ -234,9 +271,11 @@ while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
+                    sys.exit()
         clock.tick(FPS)
 
 
