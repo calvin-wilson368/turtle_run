@@ -178,7 +178,7 @@ class Enemy:
         while True:
             self.x = random.randint(round(-self.WIDTH / 2 + self.width), round(self.WIDTH / 2 - self.width))
             self.y = random.randint(round(-self.HEIGHT / 2 + self.height), round(self.HEIGHT / 2 - self.height))
-            if abs(self.x) + abs(self.y) > self.WIDTH / 4:
+            if math.hypot(self.x - self.player.x, self.y - self.player.y) > self.WIDTH / 4:
                 break
         self.speed = 400
 

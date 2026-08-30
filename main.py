@@ -118,7 +118,6 @@ def check_effect():
             effects.remove((effect_type, effect_time))
             effect_update(effect_type, undo=True)
 
-
 def draw():
     screen.fill((0, 0, 20))
     for c in coins:
@@ -134,10 +133,12 @@ def draw():
         target, name, strength = effect.split(" ")
         target_name = "Player" if target == "p" else "Enemy"
         effect_name = name.replace("_", " ").capitalize()
-        text = font.render(f"{target_name}: {effect_name} {strength}", True, "white")
-        text_rect = text.get_rect(topleft=(20, 200 + i * 100))
-        screen.blit(text, text_rect)
-    pygame.display.flip()
+        effect_text = font.render(f"{target_name}: {effect_name} {strength}", True, "white")
+        text_rect = effect_text.get_rect(topleft=(20, 200 + i * 100))
+        screen.blit(effect_text, text_rect)
+    text = font.render(f"{math.ceil(10 * spawn_level - spawn_timer)}", True, "white")
+    text_rect = text.get_rect(topright=(WIDTH-40, 40))
+    screen.blit(text, text_rect)
 
     #coordinates(player)
 
@@ -150,7 +151,6 @@ def update(dt):
 
     if spawn_timer > 10 * spawn_level:
         spawn_count = int(2 ** (spawn_level * 0.5))
-
 
         for _ in range(spawn_count):
             enemies.append(en.FollowEnemy(100, 100, *enemy_args))
