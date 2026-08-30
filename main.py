@@ -8,6 +8,10 @@ import player as plr
 import enemy as en
 import coin
 
+#git add .
+#git commit -m ""
+#git push
+
 if True:
     pygame.init()
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -37,7 +41,7 @@ if True:
     player = plr.Player(int(WIDTH/20), int(WIDTH/20), screen)
 
     spawn_timer = 0
-    spawn_level = 1
+    spawn_time = 25
 
     enemy_args = (screen, player, [])
     enemies = [en.FollowEnemy(100, 100, *enemy_args) for _ in range(2)] + [en.RanEnemy(100, 100, *enemy_args) for _ in range(2)]
@@ -118,6 +122,7 @@ def check_effect():
             effects.remove((effect_type, effect_time))
             effect_update(effect_type, undo=True)
 
+
 def draw():
     screen.fill((0, 0, 20))
     for c in coins:
@@ -136,34 +141,33 @@ def draw():
         effect_text = font.render(f"{target_name}: {effect_name} {strength}", True, "white")
         text_rect = effect_text.get_rect(topleft=(20, 200 + i * 100))
         screen.blit(effect_text, text_rect)
-    text = font.render(f"{math.ceil(10 * spawn_level - spawn_timer)}", True, "white")
+
+    text = font.render(f"{math.ceil(spawn_time - spawn_timer)}", True, "white")
     text_rect = text.get_rect(topright=(WIDTH-40, 40))
     screen.blit(text, text_rect)
 
     #coordinates(player)
 
 def update(dt):
-    global life, enemies, spawn_level
+    global life, enemies, spawn_timer, spawn_time
 
     check_effect()
 
     player.update(dt)
 
-    if spawn_timer > 10 * spawn_level:
-        spawn_count = int(2 ** (spawn_level * 0.5))
-
-        for _ in range(spawn_count):
-            enemies.append(en.FollowEnemy(100, 100, *enemy_args))
-            enemies.append(en.RanEnemy(100, 100, *enemy_args))
+    if spawn_timer > spawn_time:
+        enemies.append(en.FollowEnemy(100, 100, *enemy_args))
+        enemies.append(en.RanEnemy(100, 100, *enemy_args))
 
         for enemy in enemies:
             enemy.enemies = enemies
 
-        spawn_level += 1
+        spawn_time *= 0.875
+        spawn_timer = 0
 
     for enemy in enemies:
         enemy.update(dt)
-        enemy.speed += 5 * dt
+        enemy.speed += 3 * dt
 
         if player.bound_rect().colliderect(enemy.bound_rect()) and immortal == False:
             life = False
@@ -245,7 +249,7 @@ while True:
         effect_update(effect, undo=True)
 
     spawn_timer = 0
-    spawn_level = 1
+    spawn_time = 25
 
     enemies = ([en.FollowEnemy(100, 100, *enemy_args) for _ in range(2)] +
                [en.RanEnemy(100, 100, *enemy_args) for _ in range(2)])
