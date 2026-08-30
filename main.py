@@ -41,7 +41,7 @@ if True:
     player = plr.Player(int(WIDTH/20), int(WIDTH/20), screen)
 
     spawn_timer = 0
-    spawn_time = 25
+    spawn_time = 5
 
     enemy_args = (screen, player, [])
     enemies = [en.FollowEnemy(100, 100, *enemy_args) for _ in range(2)] + [en.RanEnemy(100, 100, *enemy_args) for _ in range(2)]
@@ -61,6 +61,10 @@ def coordinates(target):
         screen.blit(text, text_rect)
     pygame.display.flip()
 
+def fps():
+    text = font.render(f"FPS: {clock.get_fps():.0f}", True, "white")
+    text_rect = text.get_rect(topright=(WIDTH - 40, 140))
+    screen.blit(text, text_rect)
 
 def effect_update(effect, undo=False):
     target_type, effect_type, strength_text = effect.split(" ")
@@ -132,7 +136,6 @@ def draw():
         enemy.draw()
 
     screen.blit(score_text, (20, 20))
-    font = pygame.font.Font(None, 100)
 
     for i, (effect, _) in enumerate(effects):
         target, name, strength = effect.split(" ")
@@ -145,6 +148,8 @@ def draw():
     text = font.render(f"{math.ceil(spawn_time - spawn_timer)}", True, "white")
     text_rect = text.get_rect(topright=(WIDTH-40, 40))
     screen.blit(text, text_rect)
+
+    fps()
 
     #coordinates(player)
 
