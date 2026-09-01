@@ -28,13 +28,13 @@ class Player:
         speed = max(self.width, self.height) * 6 * dt * self.speed
 
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            dx = -speed
+            dx += -speed
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            dx = speed
+            dx += speed
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            dy = speed
+            dy += speed
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            dy = -speed
+            dy += -speed
 
         distance = math.hypot(dx, dy)
         if distance > 0:
