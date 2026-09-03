@@ -12,7 +12,7 @@ class Coin(pygame.sprite.Sprite):
         self.HEIGHT = screen.get_height()
         self.screen = screen
 
-        self.type = random.choice(("Blue", "Yellow", "Yellow", "Yellow", "Yellow", "Yellow"))
+        self.type = random.choice(("Blue", "Yellow", "Yellow", "Yellow"))
 
         # Keep diameter size matching your design parameters
         self.diameter = 100 if self.type != "Yellow" else 50
