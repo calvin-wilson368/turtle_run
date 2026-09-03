@@ -1,11 +1,14 @@
-import math
-import random
-import time
+import pygame
 import sys
 import json
 import os
 
-import pygame
+#if "allen" in input("What's your name? ").lower():
+    #sys.exit()
+
+import math
+import random
+import time
 
 import player as plr
 import enemy as en
@@ -55,7 +58,7 @@ if True:
 
     gameOverFont = pygame.font.Font(None, 500)
 
-    inventory = {"amo": 0, "gruhnaids": 0}
+    inventory = {"amo": 0, "grenades": 0}
 
     immortal = False
 
@@ -111,6 +114,13 @@ def draw():
     text_rect = text.get_rect(topright=(WIDTH - 40, 40))
     screen.blit(text, text_rect)
 
+    text = font.render(f"Amo: {inventory["amo"]}", True, "white")
+    text_rect = text.get_rect(bottomleft=(WIDTH / 2 - 400, HEIGHT - 40))
+    screen.blit(text, text_rect)
+
+    text = font.render(f"Grenades: {inventory['grenades']}", True, "white")
+    text_rect = text.get_rect(bottomright=(WIDTH / 2 + 400, HEIGHT - 40))
+    screen.blit(text, text_rect)
     fps()
 
 
@@ -148,7 +158,10 @@ def update(dt):
                 high_score = score
                 high_score_text = font.render(f"High Score: {high_score}", True, (255, 235, 80))
         elif c.type == "Blue":
-            inventory[random.choice(list(inventory.keys()))] += 1
+            if random.randint(1, 3) == 1:
+                inventory["grenades"] += 1
+            else:
+                inventory["amo"] += random.randint(1, 5)
 
     if random.random() < dt / 5:
         coins.add(coin.Coin(100, screen))
@@ -166,6 +179,11 @@ def game_loop():
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
+                if event.key == pygame.K_p:
+                    while pygame.key.get_pressed()[pygame.K_p]:
+                        pass
+                    while not pygame.key.get_pressed()[pygame.K_p]:
+                        pass
 
         dt = clock.tick(FPS) / 1000
         spawn_timer += dt
@@ -204,7 +222,7 @@ while True:
     score = 0
     score_text = font.render(f"Score: 0", True, (255, 255, 255))
 
-    inventory = {"amo": 0, "gruhnaids": 0}
+    inventory = {"amo": 0, "grenades": 0}
 
     player.x = 0
     player.y = 0
