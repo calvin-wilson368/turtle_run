@@ -1,2 +1,2 @@
 # turtle_run
-running away from enemies
+run away from enemies
