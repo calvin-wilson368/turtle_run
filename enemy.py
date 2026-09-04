@@ -4,13 +4,10 @@ import random
 import pygame
 
 
+
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, width, height, color, screen, player):
+    def __init__(self, width, height, color):
         super().__init__()
-        self.WIDTH = screen.get_width()
-        self.HEIGHT = screen.get_height()
-        self.screen = screen
-        self.player = player
 
         self.width = width
         self.height = height
@@ -27,11 +24,13 @@ class Enemy(pygame.sprite.Sprite):
         self.reset()
 
     def update_rect_position(self):
+        from main import WIDTH, HEIGHT
         """Syncs the display box with engine variables exactly once per frame."""
-        self.rect.x = int(self.x + self.WIDTH / 2 - self.width / 2)
-        self.rect.y = int(-self.y + self.HEIGHT / 2 - self.height / 2)
+        self.rect.x = int(self.x + WIDTH / 2 - self.width / 2)
+        self.rect.y = int(-self.y + HEIGHT / 2 - self.height / 2)
 
     def collision(self, dt, dx, dy, distance):
+        from main import WIDTH, HEIGHT
         speed = self.speed * dt
         dir_x, dir_y = dx / distance, dy / distance
         move_x, move_y = dir_x * speed, dir_y * speed
@@ -46,7 +45,7 @@ class Enemy(pygame.sprite.Sprite):
 
         w_half, h_half = self.width / 2, self.height / 2
         s_width, s_height = self.width, self.height
-        w_center, h_center = self.WIDTH / 2, self.HEIGHT / 2
+        w_center, h_center = WIDTH / 2, HEIGHT / 2
 
         def blocked(test_x, test_y):
             test_rect = pygame.Rect(
@@ -112,21 +111,23 @@ class Enemy(pygame.sprite.Sprite):
         return True
 
     def reset(self):
+        from main import WIDTH, HEIGHT, player
         while True:
-            self.x = random.randint(round(-self.WIDTH / 2 + self.width), round(self.WIDTH / 2 - self.width))
-            self.y = random.randint(round(-self.HEIGHT / 2 + self.height), round(self.HEIGHT / 2 - self.height))
-            if math.hypot(self.x - self.player.x, self.y - self.player.y) > self.WIDTH / 4:
+            self.x = random.randint(round(-WIDTH / 2 + self.width), round(WIDTH / 2 - self.width))
+            self.y = random.randint(round(-HEIGHT / 2 + self.height), round(HEIGHT / 2 - self.height))
+            if math.hypot(self.x - player.x, self.y - player.y) > WIDTH / 4:
                 break
         self.update_rect_position()
 
 
 class FollowEnemy(Enemy):
-    def __init__(self, width, height, screen, player):
-        super().__init__(width, height, "Red", screen, player)
+    def __init__(self, width, height):
+        super().__init__(width, height, "Red")
 
     def update(self, dt):
-        dx = self.player.x - self.x
-        dy = self.player.y - self.y
+        from main import player
+        dx = player.x - self.x
+        dy = player.y - self.y
         distance = math.hypot(dx, dy)
         if distance > 0:
             self.collision(dt, dx, dy, distance)
@@ -134,8 +135,8 @@ class FollowEnemy(Enemy):
 
 
 class RanEnemy(Enemy):
-    def __init__(self, width, height, screen, player, color="Blue"):
-        super().__init__(width, height, color, screen, player)
+    def __init__(self, width, height, color="Blue"):
+        super().__init__(width, height, color)
 
     def update(self, dt):
         dx = self.target_x - self.x
@@ -150,8 +151,9 @@ class RanEnemy(Enemy):
         self.update_rect_position()
 
     def get_new_target(self):
-        self.target_x = random.randint(-self.WIDTH // 2 + self.width, self.WIDTH // 2 - self.width)
-        self.target_y = random.randint(-self.HEIGHT // 2 + self.height, self.HEIGHT // 2 - self.height)
+        from main import WIDTH, HEIGHT
+        self.target_x = random.randint(-WIDTH // 2 + self.width, WIDTH // 2 - self.width)
+        self.target_y = random.randint(-HEIGHT // 2 + self.height, HEIGHT // 2 - self.height)
 
     def reset(self):
         super().reset()
@@ -160,12 +162,13 @@ class RanEnemy(Enemy):
 
 class ExplodeEnemy(RanEnemy):
     def __init__(self, width, height, screen, player):
-        super().__init__(width, height, screen, player, color="Yellow")
+        super().__init__(width, height, color="Yellow")
 
     def update(self, dt):
+        from main import player
         super().update(dt)
-        dx = self.player.x - self.x
-        dy = self.player.y - self.y
+        dx = player.x - self.x
+        dy = player.y - self.y
         distance = math.hypot(dx, dy)
         if distance < 500:
             self.kill()

@@ -4,13 +4,9 @@ import pygame
 
 
 class Coin(pygame.sprite.Sprite):
-    def __init__(self, diameter, screen):
-        # 1. Initialize the parent Sprite class
+    def __init__(self, diameter):
         super().__init__()
 
-        self.WIDTH = screen.get_width()
-        self.HEIGHT = screen.get_height()
-        self.screen = screen
 
         self.type = random.choice(("Blue", "Yellow", "Yellow", "Yellow"))
 
@@ -36,12 +32,14 @@ class Coin(pygame.sprite.Sprite):
         self.reset()
 
     def update_rect_position(self):
+        from main import WIDTH, HEIGHT
         """Helper to accurately sync screen rect mapping based on custom coordinates."""
-        self.rect.x = int(self.x + self.WIDTH / 2 - self.diameter / 2)
-        self.rect.y = int(-self.y + self.HEIGHT / 2 - self.diameter / 2)
+        self.rect.x = int(self.x + WIDTH / 2 - self.diameter / 2)
+        self.rect.y = int(-self.y + HEIGHT / 2 - self.diameter / 2)
 
     def reset(self):
+        from main import WIDTH, HEIGHT
         """Randomizes position and automatically updates rect coordinates."""
-        self.x = random.randint(-self.WIDTH // 2 + self.diameter, self.WIDTH // 2 - self.diameter)
-        self.y = random.randint(-self.HEIGHT // 2 + self.diameter, self.HEIGHT // 2 - self.diameter)
+        self.x = random.randint(-WIDTH // 2 + self.diameter, WIDTH // 2 - self.diameter)
+        self.y = random.randint(-HEIGHT // 2 + self.diameter, HEIGHT // 2 - self.diameter)
         self.update_rect_position()
