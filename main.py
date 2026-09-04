@@ -3,20 +3,21 @@ import sys
 import json
 import os
 
-#if "allen" in input("What's your name? ").lower():
-    #sys.exit()
-
 import math
 import random
-import time
+import hashlib
 
 import player as plr
 import enemy as en
 import coin
 
-# High score file management
-HIGHSCORE_FILE = "highscore.json"
+import funcs
 
+
+
+# File management
+HIGHSCORE_FILE = "highscore.json"
+USERS_FILE = "users.json"
 
 def load_highscore():
     if os.path.exists(HIGHSCORE_FILE):
@@ -28,13 +29,56 @@ def load_highscore():
             return 0
     return 0
 
-
 def save_highscore(score):
     try:
         with open(HIGHSCORE_FILE, "w") as f:
             json.dump({"highscore": score}, f)
     except:
         pass
+
+
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+def load_user(username):
+    if os.path.exists(USERS_FILE):
+        try:
+            with open(USERS_FILE, "r") as f:
+                data = json.load(f)
+                return next((u for u in data if u.get("username") == username), False)
+        except:
+            return False
+    return False
+
+def save_user(username, password):
+    if os.path.exists(USERS_FILE) and os.path.getsize(USERS_FILE) > 0:
+        with open(USERS_FILE, "r") as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                data = []  # Fallback if file was corrupted
+    else:
+        data = []
+
+    data.append({"username": username, "password": hash_password(password), "data": 1})
+
+    with open(USERS_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+"""
+if (username := input("Username: ")) and (password := input("Password: ")):
+    user = load_user(username)
+    if not user:
+        print("Incorrect username or password")
+        sys.exit()
+        save_user(username, password)
+    else:
+         while True:
+             if hash_password(password) == user["password"]:
+                break
+             print("Incorrect password")
+             password = input("Password: ")"""
 
 
 if True:
@@ -63,40 +107,21 @@ if True:
     immortal = False
 
     player = plr.Player(int(WIDTH / 20), int(WIDTH / 20), screen)
-    # Put player in its own group or handle individually
+
     player_group = pygame.sprite.GroupSingle(player)
 
     spawn_timer = 0
     spawn_time = 25
 
-    enemy_args = (screen, player)
-
     enemies = pygame.sprite.Group()
     for _ in range(2):
-        enemies.add(en.FollowEnemy(100, 100, *enemy_args))
-        enemies.add(en.RanEnemy(100, 100, *enemy_args))
+        enemies.add(en.FollowEnemy(100, 100))
+        enemies.add(en.RanEnemy(100, 100))
 
     coins = pygame.sprite.Group()
     for _ in range(5):
-        coins.add(coin.Coin(100, screen))
+        coins.add(coin.Coin(100))
 
-
-
-def coordinates(target):
-    font = pygame.font.Font(None, 100)
-    lines = [f"x: {target.x:.0f}", f"y: {target.y:.0f}"]
-
-    for i, line in enumerate(lines):
-        text = font.render(line, True, "white")
-        text_rect = text.get_rect(topright=(WIDTH - 40, 220 + i * 100))
-        screen.blit(text, text_rect)
-    pygame.display.flip()
-
-
-def fps():
-    text = font.render(f"FPS: {clock.get_fps():.0f}", True, "white")
-    text_rect = text.get_rect(topright=(WIDTH - 40, 140))
-    screen.blit(text, text_rect)
 
 
 def draw():
@@ -121,7 +146,8 @@ def draw():
     text = font.render(f"Grenades: {inventory['grenades']}", True, "white")
     text_rect = text.get_rect(bottomright=(WIDTH / 2 + 400, HEIGHT - 40))
     screen.blit(text, text_rect)
-    fps()
+
+    funcs.fps()
 
 
 def update(dt):
@@ -131,8 +157,8 @@ def update(dt):
     player_group.update(dt)
 
     if spawn_timer > spawn_time:
-        enemies.add(en.FollowEnemy(100, 100, *enemy_args))
-        enemies.add(en.RanEnemy(100, 100, *enemy_args))
+        enemies.add(en.FollowEnemy(100, 100))
+        enemies.add(en.RanEnemy(100, 100))
 
         spawn_time *= 0.875
         spawn_timer = 0
@@ -164,7 +190,7 @@ def update(dt):
                 inventory["amo"] += random.randint(1, 5)
 
     if random.random() < dt / 5:
-        coins.add(coin.Coin(100, screen))
+        coins.add(coin.Coin(100))
 
 
 def game_loop():
@@ -234,11 +260,11 @@ while True:
     # Clear and recreate sprite groups cleanly on reset
     enemies.empty()
     for _ in range(2):
-        enemies.add(en.FollowEnemy(100, 100, *enemy_args))
-        enemies.add(en.RanEnemy(100, 100, *enemy_args))
+        enemies.add(en.FollowEnemy(100, 100))
+        enemies.add(en.RanEnemy(100, 100))
 
     coins.empty()
     for _ in range(5):
-        coins.add(coin.Coin(100, screen))
+        coins.add(coin.Coin(100))
 
 pygame.quit()
